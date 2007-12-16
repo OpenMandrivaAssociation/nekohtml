@@ -33,7 +33,7 @@
 
 Name:           nekohtml
 Version:        0.9.5
-Release:        %mkrel 4.1.2
+Release:        %mkrel 4.1.3
 Epoch:          0
 Summary:        HTML scanner and tag balancer
 License:        Apache License
@@ -52,7 +52,7 @@ BuildRequires:  java-gcj-compat-devel
 BuildArch:      noarch
 BuildRequires:  java-devel
 %endif
-BuildRequires:  jpackage-utils >= 0:1.6
+BuildRequires:  java-rpmbuild >= 0:1.6
 BuildRequires:  ant
 BuildRequires:  java-javadoc
 BuildRequires:  xerces-j2 >= 0:2.7.1
