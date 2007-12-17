@@ -44,7 +44,6 @@ Source1:        %{name}-filter.sh
 Patch0:         %{name}-crosslink.patch
 Patch1:         %{name}-HTMLScanner.patch
 Group:          Development/Java
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
