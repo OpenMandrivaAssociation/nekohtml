@@ -32,19 +32,18 @@
 %define gcj_support 1
 
 Name:           nekohtml
-Version:        0.9.5
-Release:        %mkrel 4.1.3
+Version:        1.9.6
+Release:        %mkrel 0.0.1
 Epoch:          0
 Summary:        HTML scanner and tag balancer
 License:        Apache License
-URL:            http://www.apache.org/~andyc/neko/doc/html/
-Source0:        http://www.apache.org/~andyc/neko/nekohtml-0.9.5.tar.gz
+URL:            http://nekohtml.sourceforge.net/
+Source0:        http://downloads.sourceforge.net/nekohtml/nekohtml-%{version}.tar.gz
 # Source 1      http://www.jpackage.org/cgi-bin/viewvc.cgi/*checkout*/rpms/devel/nekohtml/nekohtml-filter.sh?root=jpackage&content-type=text%2Fplain
 Source1:        %{name}-filter.sh
 Patch0:         %{name}-crosslink.patch
-Patch1:         %{name}-HTMLScanner.patch
+Patch1:         %{name}-1.9.6-jars.patch
 Group:          Development/Java
-
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
 %else
@@ -54,10 +53,12 @@ BuildRequires:  java-devel
 BuildRequires:  java-rpmbuild >= 0:1.6
 BuildRequires:  ant
 BuildRequires:  java-javadoc
+BuildRequires:  bcel-javadoc
 BuildRequires:  xerces-j2 >= 0:2.7.1
 BuildRequires:  xerces-j2-javadoc-xni
 BuildRequires:  xerces-j2-javadoc-impl
-Requires:               jpackage-utils >= 0:1.6
+Requires:       bcel
+Requires:       jpackage-utils >= 0:1.6
 Requires:       xerces-j2 >= 0:2.7.1
 
 %description
@@ -96,21 +97,24 @@ Demonstrations and samples for %{name}.
 %prep
 %setup -q
 %patch0 -p0
-%patch1 -b .sav
-find . -name "*.jar" -exec rm -f {} \;
-
+%patch1 -p0
+%{_bindir}/find . -name "*.jar" | %{_bindir}/xargs -t %{__rm}
+%{__perl} -pi -e 's/\r$//g' *.txt doc/*
 
 %build
-export CLASSPATH=$(build-classpath xerces-j2)
-%{ant} -f build-html.xml \
-    -Djarfile=%{name}-%{version}.jar \
-    -DjarfileXni=%{name}-xni-%{version}.jar \
-    -DjarfileSamples=%{name}-samples-%{version}.jar \
+export CLASSPATH=$(build-classpath bcel xerces-j2)
+export OPT_JAR_LIST=:
+%{ant} \
+    -Dbuild.sysclasspath=first \
+    -Djava.dir=%{_javadir} \
+    -Djar.file=%{name}-%{version}.jar \
+    -Djar.xni.file=%{name}-xni-%{version}.jar \
+    -Djar.samples.file=%{name}-samples-%{version}.jar \
+    -Dbcel.javadoc=%{_javadocdir}/bcel \
     -Dj2se.javadoc=%{_javadocdir}/java \
     -Dxni.javadoc=%{_javadocdir}/xerces-j2-xni \
     -Dxerces.javadoc=%{_javadocdir}/xerces-j2-impl \
-    clean package jar-xni test
-
+    clean jar jar-xni doc test
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -131,28 +135,10 @@ install -p -m 644 %{name}-samples-%{version}.jar \
 
 # Javadocs
 install -d -m 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-cp -pr bin/package/nekohtml-*/doc/html/javadoc/* \
-  $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/
-
-# Avoid having javadocs in %doc.
-rm -rf bin/package/nekohtml-*/doc/html/javadoc
-
-# Fix EOL in files
-pushd bin/package/nekohtml-*/doc/html
-for x in *.html; do tr -d \\r <$x >$x.tmp; mv $x.tmp $x; done
-tr -d \\r <.htaccess >.htaccess.tmp; mv .htaccess.tmp .htaccess
-# Rename .htaccess file to sample version.
-mv .htaccess sample.htaccess
-# ln -sf %{_javadocdir}/%{name}-%{version} javadoc
-popd
-
-pushd bin/package/nekohtml-*/doc
-tr -d \\r <style.css >style.css.tmp; mv style.css.tmp style.css
-popd 
-
-for x in LICENSE*; do tr -d \\r <$x >$x.tmp; mv $x.tmp $x; done
-for x in README*; do tr -d \\r <$x >$x.tmp; mv $x.tmp $x; done
-for x in TODO*; do tr -d \\r <$x >$x.tmp; mv $x.tmp $x; done
+# XXX: breaks short-circuit
+cp -a doc/javadoc/* \
+  $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/ || :
+rm -rf doc/javadoc
 
 %if %{gcj_support}
 %{_bindir}/aot-compile-rpm
@@ -171,7 +157,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(0644,root,root,0755)
-%doc LICENSE* README* TODO* bin/package/nekohtml-*/doc/*
+%doc LICENSE.txt README.txt doc/*
 %attr(755,root,root) %{_bindir}/%{name}-filter
 %{_javadir}/%{name}*.jar
 %if %{gcj_support}
