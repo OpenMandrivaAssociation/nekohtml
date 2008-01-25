@@ -32,7 +32,7 @@
 %define gcj_support 1
 
 Name:           nekohtml
-Version:        1.9.6
+Version:        1.9.6.1
 Release:        %mkrel 0.0.1
 Epoch:          0
 Summary:        HTML scanner and tag balancer
