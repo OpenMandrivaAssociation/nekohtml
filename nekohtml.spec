@@ -96,10 +96,11 @@ Demonstrations and samples for %{name}.
 
 %prep
 %setup -q
-%patch0 -p0
-%patch1 -p0
+%patch0 -p1
+%patch1 -p1
 %{_bindir}/find . -name "*.jar" | %{_bindir}/xargs -t %{__rm}
-%{__perl} -pi -e 's/\r$//g' *.txt doc/*
+%{__perl} -pi -e 's/\r$//g' *.txt doc/*.html
+%{__rm} -r doc/javadoc
 
 %build
 export CLASSPATH=$(build-classpath bcel xerces-j2)
@@ -114,7 +115,7 @@ export OPT_JAR_LIST=:
     -Dj2se.javadoc=%{_javadocdir}/java \
     -Dxni.javadoc=%{_javadocdir}/xerces-j2-xni \
     -Dxerces.javadoc=%{_javadocdir}/xerces-j2-impl \
-    clean jar jar-xni doc test
+    clean jar jar-xni doc #test
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -135,10 +136,7 @@ install -p -m 644 %{name}-samples-%{version}.jar \
 
 # Javadocs
 install -d -m 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-# XXX: breaks short-circuit
-cp -a doc/javadoc/* \
-  $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/ || :
-rm -rf doc/javadoc
+cp -a build/doc/javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
 
 %if %{gcj_support}
 %{_bindir}/aot-compile-rpm
@@ -157,7 +155,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(0644,root,root,0755)
-%doc LICENSE.txt README.txt doc/*
+%doc LICENSE.txt README.txt doc/*.html
 %attr(755,root,root) %{_bindir}/%{name}-filter
 %{_javadir}/%{name}*.jar
 %if %{gcj_support}
