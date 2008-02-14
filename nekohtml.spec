@@ -44,6 +44,7 @@ Source1:        %{name}-filter.sh
 Patch0:         %{name}-crosslink.patch
 Patch1:         %{name}-1.9.6-jars.patch
 Group:          Development/Java
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
 %else
