@@ -33,7 +33,7 @@
 
 Name:           nekohtml
 Version:        1.9.6.1
-Release:        %mkrel 0.0.3
+Release:        %mkrel 0.0.4
 Epoch:          0
 Summary:        HTML scanner and tag balancer
 License:        Apache License
