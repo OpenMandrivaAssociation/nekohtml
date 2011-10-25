@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2005, JPackage Project
+# Copyright (c) 2000-2009, JPackage Project
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,39 +28,37 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-%define section free
-%define gcj_support 1
-
 Name:           nekohtml
-Version:        1.9.6.1
-Release:        %mkrel 0.0.5
-Epoch:          0
+Version:        1.9.14
+Release:        4
 Summary:        HTML scanner and tag balancer
-License:        Apache License
+License:        ASL 2.0
 URL:            http://nekohtml.sourceforge.net/
-Source0:        http://downloads.sourceforge.net/nekohtml/nekohtml-%{version}.tar.gz
-# Source 1      http://www.jpackage.org/cgi-bin/viewvc.cgi/*checkout*/rpms/devel/nekohtml/nekohtml-filter.sh?root=jpackage&content-type=text%2Fplain
+Source0:        http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
+# http://www.jpackage.org/cgi-bin/viewvc.cgi/*checkout*/rpms/devel/nekohtml/nekohtml-filter.sh?root=jpackage&content-type=text%2Fplain
 Source1:        %{name}-filter.sh
+Source2:        nekohtml-component-info.xml
 Patch0:         %{name}-crosslink.patch
-Patch1:         %{name}-1.9.6-jars.patch
+Patch1:         %{name}-jars.patch
 Group:          Development/Java
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-%if %{gcj_support}
-BuildRequires:  java-gcj-compat-devel
-%else
-BuildArch:      noarch
-BuildRequires:  java-devel
-%endif
-BuildRequires:  java-rpmbuild >= 0:1.6
+Requires:       bcel
+Requires:       jpackage-utils >= 0:1.6
+Requires:       xerces-j2 >= 0:2.7.1
+Requires:       xml-commons-jaxp-1.3-apis
+BuildRequires:  jpackage-utils
 BuildRequires:  ant
+BuildRequires:  ant-junit
+BuildRequires:  ant-nodeps
 BuildRequires:  java-javadoc
+BuildRequires:  bcel
 BuildRequires:  bcel-javadoc
 BuildRequires:  xerces-j2 >= 0:2.7.1
 BuildRequires:  xerces-j2-javadoc-xni
 BuildRequires:  xerces-j2-javadoc-impl
-Requires:       bcel
-Requires:       jpackage-utils >= 0:1.6
-Requires:       xerces-j2 >= 0:2.7.1
+BuildRequires:  xml-commons-jaxp-1.3-apis
+BuildArch:      noarch
+BuildRequires:  java-devel >= 1.6.0
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
 NekoHTML is a simple HTML scanner and tag balancer that enables
@@ -75,25 +73,20 @@ the foundation of the Xerces2 implementation. This enables you to use
 the NekoHTML parser with existing XNI tools without modification or
 rewriting code.
 
-%package        javadoc
+%package javadoc
 Summary:        Javadoc for %{name}
 Group:          Development/Java
-Requires:               jpackage-utils >= 0:1.6
-Requires(postun):       jpackage-utils >= 0:1.6
 
-%description    javadoc
+%description javadoc
 Javadoc for %{name}.
 
-%package        demo
+%package demo
 Summary:        Demo for %{name}
 Group:          Development/Java
-Requires:       %{name} = %{epoch}:%{version}-%{release}
-Requires:               jpackage-utils >= 0:1.6
-Requires(postun):       jpackage-utils >= 0:1.6
+Requires:       %{name} = %{version}-%{release}
 
-%description    demo
+%description demo
 Demonstrations and samples for %{name}.
-
 
 %prep
 %setup -q
@@ -105,10 +98,10 @@ Demonstrations and samples for %{name}.
 
 %build
 export CLASSPATH=$(build-classpath bcel xerces-j2)
-export OPT_JAR_LIST=:
+export OPT_JAR_LIST="`%{__cat} %{_sysconfdir}/ant.d/junit` ant/ant-nodeps xalan-j2 xalan-j2-serializer"
 %{ant} \
     -Dbuild.sysclasspath=first \
-    -Djava.dir=%{_javadir} \
+    -Dlib.dir=%{_javadir} \
     -Djar.file=%{name}-%{version}.jar \
     -Djar.xni.file=%{name}-xni-%{version}.jar \
     -Djar.samples.file=%{name}-samples-%{version}.jar \
@@ -116,58 +109,46 @@ export OPT_JAR_LIST=:
     -Dj2se.javadoc=%{_javadocdir}/java \
     -Dxni.javadoc=%{_javadocdir}/xerces-j2-xni \
     -Dxerces.javadoc=%{_javadocdir}/xerces-j2-impl \
-    clean jar jar-xni doc #test
+    clean jar jar-xni doc 
+# test - disabled because it makes the build failing
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
 # Jars
 install -d -m 755 $RPM_BUILD_ROOT%{_javadir}
-install -p -m 644 %{name}{,-xni}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/
+install -p -m 644 %{name}{,-samples,-xni}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/
 ln -s %{name}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}.jar
+ln -s %{name}-samples-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}-samples.jar
 ln -s %{name}-xni-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}-xni.jar
 
 # Scripts
 install -Dpm 755 %{SOURCE1} $RPM_BUILD_ROOT%{_bindir}/%{name}-filter
 
-# Samples
-install -d -m 755 $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
-install -p -m 644 %{name}-samples-%{version}.jar \
-  $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}/
-
 # Javadocs
 install -d -m 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
 cp -a build/doc/javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm
-%endif
+ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%if %{gcj_support}
-%post
-%{update_gcjdb}
-
-%postun
-%{clean_gcjdb}
-%endif
-
 %files
-%defattr(0644,root,root,0755)
+%defattr(-,root,root,-)
 %doc LICENSE.txt README.txt doc/*.html
 %attr(755,root,root) %{_bindir}/%{name}-filter
-%{_javadir}/%{name}*.jar
-%if %{gcj_support}
-%dir %{_libdir}/gcj/%{name}
-%attr(-,root,root) %{_libdir}/gcj/%{name}/*
-%endif
+%{_javadir}/%{name}-%{version}.jar
+%{_javadir}/%{name}.jar
+%{_javadir}/%{name}-xni-%{version}.jar
+%{_javadir}/%{name}-xni.jar
 
 %files javadoc
-%defattr(0644,root,root,0755)
-%doc %{_javadocdir}/*
+%defattr(-,root,root,-)
+%{_javadocdir}/%{name}-%{version}
+%{_javadocdir}/%{name}
 
 %files demo
-%defattr(0644,root,root,0755)
-%{_datadir}/%{name}-%{version}
+%defattr(-,root,root,-)
+%{_javadir}/%{name}-samples-%{version}.jar
+%{_javadir}/%{name}-samples.jar
+
