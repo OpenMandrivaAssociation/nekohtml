@@ -30,7 +30,7 @@
 
 Name:           nekohtml
 Version:        1.9.14
-Release:        4
+Release:        6
 Summary:        HTML scanner and tag balancer
 License:        ASL 2.0
 URL:            http://nekohtml.sourceforge.net/
