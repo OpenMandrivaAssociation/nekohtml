@@ -113,25 +113,25 @@ export OPT_JAR_LIST="`%{__cat} %{_sysconfdir}/ant.d/junit` ant/ant-nodeps xalan-
 # test - disabled because it makes the build failing
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 # Jars
-install -d -m 755 $RPM_BUILD_ROOT%{_javadir}
-install -p -m 644 %{name}{,-samples,-xni}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/
-ln -s %{name}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}.jar
-ln -s %{name}-samples-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}-samples.jar
-ln -s %{name}-xni-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{name}-xni.jar
+install -d -m 755 %{buildroot}%{_javadir}
+install -p -m 644 %{name}{,-samples,-xni}-%{version}.jar %{buildroot}%{_javadir}/
+ln -s %{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
+ln -s %{name}-samples-%{version}.jar %{buildroot}%{_javadir}/%{name}-samples.jar
+ln -s %{name}-xni-%{version}.jar %{buildroot}%{_javadir}/%{name}-xni.jar
 
 # Scripts
-install -Dpm 755 %{SOURCE1} $RPM_BUILD_ROOT%{_bindir}/%{name}-filter
+install -Dpm 755 %{SOURCE1} %{buildroot}%{_bindir}/%{name}-filter
 
 # Javadocs
-install -d -m 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-cp -a build/doc/javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
-ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name}
+install -d -m 755 %{buildroot}%{_javadocdir}/%{name}-%{version}
+cp -a build/doc/javadoc/* %{buildroot}%{_javadocdir}/%{name}-%{version}
+ln -s %{name}-%{version} %{buildroot}%{_javadocdir}/%{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
