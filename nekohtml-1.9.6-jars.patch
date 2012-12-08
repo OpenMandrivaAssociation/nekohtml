@@ -1,0 +1,22 @@
+--- nekohtml-1.9.6.1/build.xml.orig	2008-01-28 20:51:26.000000000 +0000
++++ nekohtml-1.9.6.1/build.xml	2008-01-28 20:52:23.000000000 +0000
+@@ -30,6 +30,8 @@
+  <property name='build.data.dir'	value='${build.dir}/data/output' />
+  <property name='build.lib.dir'     value='${build.dir}/lib' />
+  
++ <property name='java.dir'         value='/usr/share/java'/>
++
+  <property name='jar.file'         value='${build.lib.dir}/${name}.jar'/>
+  <property name='jar.samples.file' value='${build.lib.dir}/${name}Samples.jar'/>
+  <property name='jar.xni.file'     value='${build.lib.dir}/${name}Xni.jar'/>
+@@ -51,8 +53,8 @@
+  <property name='xerces.javadoc' value='http://xml.apache.org/xerces2-j/javadocs/xerces2/'/>
+ 
+  <!-- DEPENDENCIES -->
+- <available property='xerces.available' file='${lib.dir}/xercesImpl.jar' />
+- <available property='bcel.available' file='${lib.dir}/bcel-5.2.jar' />
++ <available property='xerces.available' file='${java.dir}/xerces-j2.jar' />
++ <available property='bcel.available' file='${java.dir}/bcel.jar' />
+  
+  <!-- TARGETS --> 
+  <target name='all' depends='zip,tgz'/>
