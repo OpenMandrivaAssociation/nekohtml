@@ -1,18 +1,18 @@
---- nekohtml-1.9.6.1/build.xml.orig	2008-01-24 06:49:44.000000000 +0000
-+++ nekohtml-1.9.6.1/build.xml	2008-01-28 20:50:21.000000000 +0000
-@@ -45,6 +45,11 @@
-  <property name='tgz.xerces.filename'	value='Xerces-J-bin.2.9.1.tar.gz' />
-  <property name='tgz.bcel.filename'		value='bcel-current.tar.gz' />
-  
+--- nekohtml-1.9.18/build.xml.0000~	2013-02-27 08:53:18.000000000 +0100
++++ nekohtml-1.9.18/build.xml	2013-03-01 12:32:41.532328109 +0100
+@@ -48,6 +48,11 @@
+  <property name="maven-staging-repository-id" value="sonatype-nexus-staging" />
+  <property name="maven-staging-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
+ 
 + <property name='bcel.javadoc' value='http://jakarta.apache.org/bcel/apidocs/'/>
 + <property name='j2se.javadoc' value='http://java.sun.com/j2se/1.4.2/docs/api/'/>
 + <property name='xni.javadoc' value='http://xml.apache.org/xerces2-j/javadocs/xni/'/>
 + <property name='xerces.javadoc' value='http://xml.apache.org/xerces2-j/javadocs/xerces2/'/>
 +
   <!-- DEPENDENCIES -->
-  <available property='xerces.available' file='${lib.dir}/xercesImpl.jar' />
   <available property='bcel.available' file='${lib.dir}/bcel-5.2.jar' />
-@@ -138,8 +143,12 @@
+ 
+@@ -178,8 +183,12 @@
             author='true' version='true' use='true'
             windowtitle="${Name} Implementation"
             doctitle="${Name}" encoding="ISO-8859-1"

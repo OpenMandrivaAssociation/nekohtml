@@ -1,2 +1,4 @@
+removed_sources:
+  nekohtml-1.9.6.1.tar.gz: c05bfe02fe69eae9400d1d6e236a1e8bc1511df2
 sources:
-  "nekohtml-1.9.6.1.tar.gz": c05bfe02fe69eae9400d1d6e236a1e8bc1511df2
+  nekohtml-1.9.18.tar.gz: e8fb539f6169998ab9b999d636b43e17b4911934

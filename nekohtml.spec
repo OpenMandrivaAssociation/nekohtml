@@ -1,56 +1,18 @@
-# Copyright (c) 2000-2005, JPackage Project
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the
-#    distribution.
-# 3. Neither the name of the JPackage Project nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-
-%define section free
-%define gcj_support 1
-
 Name:           nekohtml
-Version:        1.9.6.1
-Release:        %mkrel 0.0.5
+Version:        1.9.18
+Release:        1
 Epoch:          0
 Summary:        HTML scanner and tag balancer
 License:        Apache License
 URL:            http://nekohtml.sourceforge.net/
-Source0:        http://downloads.sourceforge.net/nekohtml/nekohtml-%{version}.tar.gz
+Source0:        http://garr.dl.sourceforge.net/project/nekohtml/nekohtml/nekohtml-%version/nekohtml-%version.tar.gz
 # Source 1      http://www.jpackage.org/cgi-bin/viewvc.cgi/*checkout*/rpms/devel/nekohtml/nekohtml-filter.sh?root=jpackage&content-type=text%2Fplain
 Source1:        %{name}-filter.sh
 Patch0:         %{name}-crosslink.patch
 Patch1:         %{name}-1.9.6-jars.patch
 Group:          Development/Java
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-%if %{gcj_support}
-BuildRequires:  java-gcj-compat-devel
-%else
 BuildArch:      noarch
-BuildRequires:  java-devel
-%endif
+BuildRequires:  java-1.6.0-openjdk-devel
 BuildRequires:  java-rpmbuild >= 0:1.6
 BuildRequires:  ant
 BuildRequires:  java-javadoc
@@ -94,11 +56,16 @@ Requires(postun):       jpackage-utils >= 0:1.6
 %description    demo
 Demonstrations and samples for %{name}.
 
+%track
+prog %name = {
+	url = http://sourceforge.net/projects/nekohtml/files/
+	regex = "Download nekohtml-(__VER__)\.tar\.gz
+	version = %version
+}
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
+%apply_patches
 %{_bindir}/find . -name "*.jar" | %{_bindir}/xargs -t %{__rm}
 %{__perl} -pi -e 's/\r$//g' *.txt doc/*.html
 %{__rm} -r doc/javadoc
@@ -106,7 +73,8 @@ Demonstrations and samples for %{name}.
 %build
 export CLASSPATH=$(build-classpath bcel xerces-j2)
 export OPT_JAR_LIST=:
-%{ant} \
+export JAVA_HOME=%_prefix/lib/jvm/java-1.6.0
+ant \
     -Dbuild.sysclasspath=first \
     -Djava.dir=%{_javadir} \
     -Djar.file=%{name}-%{version}.jar \
