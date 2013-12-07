@@ -1,7 +1,7 @@
 Summary:	HTML scanner and tag balancer
 Name:		nekohtml
 Version:	1.9.18
-Release:	4
+Release:	5
 License:	Apache License
 Group:		Development/Java
 Url:		http://nekohtml.sourceforge.net/
