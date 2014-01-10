@@ -29,14 +29,14 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-%if 0%{?fedora}
-%else
-Epoch:          1
-%endif
 Name:           nekohtml
 Version:        1.9.14
 Release:        12.0%{?dist}
+%if 0%{?fedora}
 Epoch:          0
+%else
+Epoch:          1
+%endif
 Summary:        HTML scanner and tag balancer
 License:        ASL 2.0
 URL:            http://nekohtml.sourceforge.net/
