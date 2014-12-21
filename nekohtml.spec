@@ -30,29 +30,25 @@
 #
 
 Name:           nekohtml
-Version:        1.9.14
-Release:        12.0%{?dist}
-%if 0%{?fedora}
-Epoch:          0
-%else
+Version:        1.9.21
+Release:        3.1
 Epoch:          1
-%endif
 Summary:        HTML scanner and tag balancer
+Group:		Development/Java
 License:        ASL 2.0
 URL:            http://nekohtml.sourceforge.net/
 Source0:        http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
-# http://www.jpackage.org/cgi-bin/viewvc.cgi/*checkout*/rpms/devel/nekohtml/nekohtml-filter.sh?root=jpackage&content-type=text%2Fplain
-Source1:        %{name}-filter.sh
 Source2:        nekohtml-component-info.xml
-Source3:        http://repo1.maven.org/maven2/net/sourceforge/nekohtml/nekohtml/1.9.14/nekohtml-1.9.14.pom
+Source3:        http://central.maven.org/maven2/net/sourceforge/%{name}/%{name}/%{version}/%{name}-%{version}.pom
 Patch0:         %{name}-crosslink.patch
 Patch1:         %{name}-jars.patch
+# Add proper attributes to MANIFEST.MF file so bundle can be used by other OSGI bundles.
+Patch2:		%{name}-osgi.patch
 
 Requires:       bcel
-Requires:       jpackage-utils >= 0:1.6
 Requires:       xerces-j2 >= 0:2.7.1
 Requires:       xml-commons-apis
-BuildRequires:  jpackage-utils
+BuildRequires:  maven-local
 BuildRequires:  ant
 BuildRequires:  ant-junit
 BuildRequires:  java-javadoc
@@ -61,8 +57,10 @@ BuildRequires:  bcel-javadoc
 BuildRequires:  xerces-j2 >= 0:2.7.1
 BuildRequires:  xerces-j2-javadoc
 BuildRequires:  xml-commons-apis
+
+Requires:       java-headless
+
 BuildArch:      noarch
-BuildRequires:  java-devel >= 1.6.0
 
 %description
 NekoHTML is a simple HTML scanner and tag balancer that enables
@@ -80,13 +78,11 @@ rewriting code.
 %package javadoc
 Summary:        Javadoc for %{name}
 
-
 %description javadoc
 Javadoc for %{name}.
 
 %package demo
 Summary:        Demo for %{name}
-
 Requires:       %{name} = %{epoch}:%{version}-%{release}
 
 %description demo
@@ -96,9 +92,14 @@ Demonstrations and samples for %{name}.
 %setup -q
 %patch0 -p1
 %patch1 -p1
-%{_bindir}/find . -name "*.jar" | %{_bindir}/xargs -t %{__rm}
+%patch2
+find . -name "*.jar" | xargs -t %{__rm}
 %{__perl} -pi -e 's/\r$//g' *.txt doc/*.html
 %{__rm} -r doc/javadoc
+
+%mvn_alias net.sourceforge.%{name}:%{name} %{name}:%{name}
+%mvn_package net.sourceforge.%{name}:%{name}-samples demo
+%mvn_file ':{*}' @1
 
 %build
 export CLASSPATH=$(build-classpath bcel xerces-j2)
@@ -115,38 +116,49 @@ export CLASSPATH=$(build-classpath bcel xerces-j2)
     clean jar jar-xni doc 
 # test - disabled because it makes the build failing
 
+%mvn_artifact %{SOURCE3} %{name}.jar
+%mvn_artifact net.sourceforge.%{name}:%{name}-xni:%{version} %{name}-xni.jar
+%mvn_artifact net.sourceforge.%{name}:%{name}-samples:%{version} %{name}-samples.jar
+
 %install
-# Jars
-install -d -m 755 $RPM_BUILD_ROOT%{_javadir}
-install -p -m 644 %{name}{,-samples,-xni}.jar $RPM_BUILD_ROOT%{_javadir}/
+%mvn_install -J build/doc/javadoc
 
 # Scripts
-install -Dpm 755 %{SOURCE1} $RPM_BUILD_ROOT%{_bindir}/%{name}-filter
+%jpackage_script org.cyberneko.html.filters.Writer "" "" "nekohtml:xerces-j2" nekohtml-filter true
 
-# POM
-install -d -m 755 $RPM_BUILD_ROOT%{_mavenpomdir}
-install -p -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_mavenpomdir}/JPP-%{name}.pom
-%add_maven_depmap -a nekohtml:nekohtml
-
-# Javadocs
-install -d -m 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}
-cp -a build/doc/javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}
-
-%files
+%files -f .mfiles
 %doc LICENSE.txt README.txt doc/*.html
-%attr(755,root,root) %{_bindir}/%{name}-filter
-%{_mavenpomdir}/*
-%{_mavendepmapfragdir}/*
-%{_javadir}/%{name}.jar
-%{_javadir}/%{name}-xni.jar
+%{_bindir}/%{name}-filter
 
-%files javadoc
-%{_javadocdir}/%{name}
+%files javadoc -f .mfiles-javadoc
 
-%files demo
-%{_javadir}/%{name}-samples.jar
+%files demo -f .mfiles-demo
 
 %changelog
+* Tue Aug 19 2014 Mat Booth <mat.booth@redhat.com> - 0:1.9.21-3
+- Add "Import-Package" to OSGi metadata so that classes from xerces can
+  be resolved.
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:1.9.21-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Thu Jun  5 2014 Mikolaj Izdebski <mizdebsk@redhat.com> - 0:1.9.21-1
+- Update to upstream version 1.9.21
+
+* Mon May 12 2014 Jeff Johnston <jjohnstn@redhat.com> - 0:1.9.20-4
+- Add Export-Package statement to MANIFEST.MF.
+
+* Mon May 12 2014 Jeff Johnston <jjohnstn@redhat.com> - 0:1.9.20-3
+- Change Bundle-Name to be Bundle-SymbolicName.
+
+* Mon May 12 2014 Jeff Johnston <jjohnstn@redhat.com> - 0:1.9.20-2
+- Add OSGI Bundle-Name and Bundle-Version to generated manifest
+
+* Tue Mar 18 2014 Michael Simacek <msimacek@redhat.com> - 0:1.9.20-1
+- Update to upstream version 1.9.20
+- Use XMvn for installation
+- Require java-headless
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:1.9.14-12
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
@@ -181,7 +193,7 @@ cp -a build/doc/javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 - Disable gcj_support
 - Updated nekohtml-jars.patch
 
-* Mon Jul 15 2010 James Laska <jlaska@redhat.com> 0:1.9.14-1
+* Thu Jul 15 2010 James Laska <jlaska@redhat.com> 0:1.9.14-1
 - Update to 1.9.14
 
 * Wed May 13 2009 Martha Benitez <mbenitez@redhat.com> 0:1.9.11-2.2
@@ -262,3 +274,4 @@ cp -a build/doc/javadoc/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 
 * Sun Nov  3 2002 Ville SkyttÃ¤ <scop at jpackage.org> - 0.6.8-1jpp
 - 0.6.8, first JPackage release.
+

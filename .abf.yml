@@ -1,2 +1,5 @@
-sources:
+removed_sources:
   nekohtml-1.9.14.tar.gz: 55f3abbf2bc473ba827e4ef8be6204d277936f66
+sources:
+  nekohtml-1.9.21.tar.gz: 32a77b36fd58808f3f4e7c7ce1a6c436d2809eaa
+  nekohtml-component-info.xml: 76c2fdebf43c459df150484385096258fd449ca1
