@@ -31,7 +31,7 @@
 
 Name:           nekohtml
 Version:        1.9.21
-Release:        3.2
+Release:        3.3
 Epoch:          1
 Summary:        HTML scanner and tag balancer
 Group:		Development/Java
