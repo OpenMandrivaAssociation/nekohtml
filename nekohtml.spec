@@ -36,7 +36,7 @@ Epoch:          1
 Summary:        HTML scanner and tag balancer
 Group:		Development/Java
 License:        ASL 2.0
-URL:            http://nekohtml.sourceforge.net/
+URL:            https://nekohtml.sourceforge.net/
 Source0:        http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
 Source2:        nekohtml-component-info.xml
 Source3:        http://central.maven.org/maven2/net/sourceforge/%{name}/%{name}/%{version}/%{name}-%{version}.pom
